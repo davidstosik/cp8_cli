@@ -2,10 +2,11 @@ require "cp8_cli/config_store"
 
 module Cp8Cli
   class GlobalConfig
-    PATH = ENV["HOME"] + "/.trello_flow"
+    LEGACY_PATH = ENV["HOME"] + "/.trello_flow"
+    PATH = ENV["HOME"] + "/.cp8_cli"
 
     def initialize(store = nil)
-      @store = store || ConfigStore.new(PATH)
+      @store = store || ConfigStore.new(default_store_path)
     end
 
     def github_token
@@ -15,6 +16,23 @@ module Cp8Cli
     private
 
       attr_reader :store
+
+      def default_store_path
+        migrate_legacy_path
+
+        PATH
+      end
+
+      def migrate_legacy_path
+        return unless uses_legacy_path?
+
+        Command.say("#{LEGACY_PATH} was deprecated, moving to #{PATH}")
+        File.rename(LEGACY_PATH, PATH)
+      end
+
+      def uses_legacy_path?
+        !File.file?(PATH) && File.file?(LEGACY_PATH)
+      end
 
       def env_github_token
         ENV["OCTOKIT_ACCESS_TOKEN"]
