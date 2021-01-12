@@ -2,8 +2,8 @@ require "cp8_cli/config_store"
 
 module Cp8Cli
   class GlobalConfig
-    LEGACY_PATH = ENV["HOME"] + "/.trello_flow"
-    PATH = ENV["HOME"] + "/.cp8_cli"
+    LEGACY_NAME = "trello_flow"
+    NAME = "cp8_cli"
 
     def initialize(store = nil)
       @store = store || initialize_store
@@ -28,16 +28,16 @@ module Cp8Cli
       end
 
       def migrate_legacy_store
-        Command.say("#{LEGACY_PATH} was deprecated, moving to #{PATH}")
-        legacy_store.move_to(PATH)
+        Command.say("#{LEGACY_NAME} config name is deprecated, moving to #{NAME}")
+        legacy_store.move_to(default_store)
       end
 
       def default_store
-        @_default_store ||= ConfigStore.new(PATH)
+        @_default_store ||= ConfigStore.new(NAME)
       end
 
       def legacy_store
-        @_legacy_store ||= ConfigStore.new(LEGACY_PATH)
+        @_legacy_store ||= ConfigStore.new(LEGACY_NAME)
       end
 
       def env_github_token

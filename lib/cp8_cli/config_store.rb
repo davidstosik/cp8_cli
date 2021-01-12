@@ -2,8 +2,10 @@ require "yaml"
 
 module Cp8Cli
   class ConfigStore
-    def initialize(path)
-      @path = path
+    FILE_PREFIX = File.join(ENV["HOME"], ".")
+
+    def initialize(name)
+      @name = name
     end
 
     def [](key)
@@ -14,9 +16,9 @@ module Cp8Cli
       File.exist?(path)
     end
 
-    def move_to(new_path)
-      File.rename(path, new_path)
-      @path = new_path
+    def move_to(new_name)
+      File.rename(path, path_for(new_name))
+      @name = new_name
     end
 
     def save(key, value)
@@ -26,9 +28,18 @@ module Cp8Cli
       value
     end
 
+
     private
 
-      attr_reader :path
+      attr_reader :name
+
+      def path
+        path_for(name)
+      end
+
+      def path_for(store_name)
+        FILE_PREFIX + store_name
+      end
 
       def data
         @_data ||= load_data
